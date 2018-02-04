@@ -6,15 +6,7 @@
 #include <Arduino.h>
 #include "OperateMatrix.h"
 
-/*
- * Pin configuration for the LED matrices
- */
-int dataIn = D5;
-int load = D6;
-int clock = D7;
-int maxInUse = 2;
-
-int buf[16] = {0};
+int buf[MAX_IN_USE * 4] = {0};
 
 /*
  * Configuration bits for the initialization of the MAX7219
@@ -41,15 +33,15 @@ void putByte(byte data) {
   byte i = 8;
   byte mask;
   while(i > 0) {
-    mask = 0x01 << (i - 1);      // get bitmask
-    digitalWrite( clock, LOW);   // tick
+    mask = 0x01 << (i - 1);       // get bitmask
+    digitalWrite( CLOCK, LOW);    // tick
     if (data & mask) {            // choose bit
-      digitalWrite(dataIn, HIGH);// send 1
+      digitalWrite(DATA_IN, HIGH);// send 1
     }else{
-      digitalWrite(dataIn, LOW); // send 0
+      digitalWrite(DATA_IN, LOW); // send 0
     }
-    digitalWrite(clock, HIGH);   // tock
-    --i;                         // move to lesser bit
+    digitalWrite(CLOCK, HIGH);    // tock
+    --i;                          // move to lesser bit
   }
 }
 
@@ -58,13 +50,11 @@ void putByte(byte data) {
  * that only works with a single MAX7219
  */
 void maxSingle(byte reg, byte col) {
-  //maxSingle is the "easy"  function to use for a     //single max7219
-
-  digitalWrite(load, LOW);       // begin
-  putByte(reg);                  // specify register
-  putByte(col);//((data & 0x01) * 256) + data >> 1); // put data
-  digitalWrite(load, LOW);       // and load da shit
-  digitalWrite(load,HIGH);
+  digitalWrite(LOAD, LOW);      // begin
+  putByte(reg);                 // specify register
+  putByte(col);                 // put data
+  digitalWrite(LOAD, LOW);      // load data
+  digitalWrite(LOAD,HIGH);
 }
 
 /*
@@ -72,13 +62,13 @@ void maxSingle(byte reg, byte col) {
  */
 void maxAll(byte reg, byte col) {
   int c = 0;
-  digitalWrite(load, LOW);  // begin
-  for ( c =1; c<= maxInUse; c++) {
-  putByte(reg);  // specify register
-  putByte(col);//((data & 0x01) * 256) + data >> 1); // put data
-    }
-  digitalWrite(load, LOW);
-  digitalWrite(load,HIGH);
+  digitalWrite(LOAD, LOW);  // begin
+  for ( c =1; c<= MAX_IN_USE; c++) {
+    putByte(reg);           // specify register
+    putByte(col);           // put data
+  }
+  digitalWrite(LOAD, LOW);
+  digitalWrite(LOAD,HIGH);
 }
 
 /*
@@ -91,23 +81,23 @@ void maxOne(byte maxNr, byte reg, byte col) {
   }
 
   int c = 0;
-  digitalWrite(load, LOW);  // begin
+  digitalWrite(LOAD, LOW);  // begin
 
-  for ( c = maxInUse; c > maxNr; c--) {
-    putByte(0);    // means no operation
-    putByte(0);    // means no operation
+  for ( c = MAX_IN_USE; c > maxNr; c--) {
+    putByte(0);   // means no operation
+    putByte(0);   // means no operation
   }
 
-  putByte(reg);  // specify register
-  putByte(col);//((data & 0x01) * 256) + data >> 1); // put data
+  putByte(reg);   // specify register
+  putByte(col);   // put data
 
   for ( c =maxNr-1; c >= 1; c--) {
-    putByte(0);    // means no operation
-    putByte(0);    // means no operation
+    putByte(0);   // means no operation
+    putByte(0);   // means no operation
   }
 
-  digitalWrite(load, LOW); // and load da shit
-  digitalWrite(load,HIGH);
+  digitalWrite(LOAD, LOW); // load data
+  digitalWrite(LOAD,HIGH);
 }
 
 /*
@@ -116,30 +106,30 @@ void maxOne(byte maxNr, byte reg, byte col) {
 void setUp() {
   int e = 0;
 
-  pinMode(dataIn, OUTPUT);
-  pinMode(clock,  OUTPUT);
-  pinMode(load,   OUTPUT);
+  pinMode(DATA_IN, OUTPUT);
+  pinMode(CLOCK,  OUTPUT);
+  pinMode(LOAD,   OUTPUT);
 
   //beginSerial(9600);
   digitalWrite(13, HIGH);
 
   //initiation of the max 7219
   maxAll(max7219_reg_scanLimit, 0x07);
-  maxAll(max7219_reg_decodeMode, 0x00);  // using an led matrix (not digits)
-  maxAll(max7219_reg_shutdown, 0x01);    // not in shutdown mode
-  maxAll(max7219_reg_displayTest, 0x00); // no display test
-   for (e=1; e<=8; e++) {    // empty registers, turn all LEDs off
+  maxAll(max7219_reg_decodeMode, 0x00);       // using an led matrix (not digits)
+  maxAll(max7219_reg_shutdown, 0x01);         // not in shutdown mode
+  maxAll(max7219_reg_displayTest, 0x00);      // no display test
+   for (e=1; e<=8; e++) {                     // empty registers, turn all LEDs off
     maxAll(e,0);
   }
-  maxAll(max7219_reg_intensity, 0x0f & 0x0f);    // the first 0x0f is the value you can set
-                                                  // range: 0x00 to 0x0f
+  maxAll(max7219_reg_intensity, 0x0f & 0x0f); // the first 0x0f is the value you can set
+                                              // range: 0x00 to 0x0f
 }
 
 /*
  * Turns all LEDs off
  */
 void clearAll() {
-  for (int j = 1; j <= maxInUse; j++) {
+  for (int j = 1; j <= MAX_IN_USE; j++) {
     for (int k = 8; k > 0; k--) {
       maxOne(j, k, 0);
     }
@@ -174,8 +164,8 @@ void symbolInBuffer(int x, int* arr, int len) {
  * 
  * Parameter arr: 2d array containing only 1s for ON and 0s for OFF
  */
-void setWholeBuffer(int arr[16][8]) {
-  for (int x = 0; x < 16; x++) {
+void setWholeBuffer(int arr[MAX_IN_USE * 8][8]) {
+  for (int x = 0; x < (MAX_IN_USE * 4); x++) {
     buf[x] = 0;
     for (int y = 0; y < 8; y++) {
       if (arr[x][y]) {
@@ -191,7 +181,7 @@ void setWholeBuffer(int arr[16][8]) {
  * Parameter arr: 1d array containing the new buffer content
  */
 void setWholeBuffer(int* arr) {
-  for (int x = 0; x < 16; x++) {
+  for (int x = 0; x < (MAX_IN_USE * 8); x++) {
     buf[x] = arr[x];
   }
 }
@@ -202,7 +192,6 @@ void setWholeBuffer(int* arr) {
  * 
  * Parameter offset: which matrix should be rotated (0 = first matrix, 8 = second matrix, ...)
  */
-// This is necessary because of hardware limitations
 void turnBuffer(int offset) {
   int *bufferCopy = (int*)malloc(8 * sizeof(int));
   memcpy(bufferCopy, buf + offset, 8 * sizeof(int));
@@ -224,18 +213,15 @@ void turnBuffer(int offset) {
  * Physically draws the buffer onto the matrices
  */
 void drawBuffer() {
-  turnBuffer(0);
-  turnBuffer(8);
-  
-  for(int i = 0; i<8; i++) {
-    maxOne(1,8-i,buf[i]);
+  for (int n = 0; n < MAX_IN_USE; n++) {
+    turnBuffer(n * 8);
+
+    for(int i = 0; i<8; i++) {
+      maxOne(n + 1,8-i,buf[i + (n * 8)]);
+    }
   }
   
-  for(int k = 0; k<8; k++) {
-    maxOne(2,8-k,buf[k+8]);
-  }
-  
-  for(int m = 0; m < 16; m++) {
+  for(int m = 0; m < (MAX_IN_USE * 8); m++) {
     buf[m] = 0;
   }
 }

@@ -50,19 +50,19 @@ void symbolInRunningBuffer(int x, int* arr, int len) {
  */
 void runningText(char *text, int len, int del) {
   int xWidth = len * 6;
-  runningBuffer = (int*)malloc((xWidth + 32) * sizeof(int));
+  runningBuffer = (int*)malloc((xWidth + (MAX_IN_USE * 16)) * sizeof(int));
   int pos = 0;
-  symbolInRunningBuffer(pos, empty, 16);
-  pos += 16;
+  symbolInRunningBuffer(pos, empty, MAX_IN_USE * 8);
+  pos += (MAX_IN_USE * 8);
   for (int i = 0; i < len; i++) {
     symbolInRunningBuffer(pos, letters[text[i]-32], 5);
     pos += 5;
     runningBuffer[pos] = 0;
     pos++;
   }
-  symbolInRunningBuffer(pos, empty, 16);
+  symbolInRunningBuffer(pos, empty, MAX_IN_USE * 8);
 
-  for (int x = 0; x < xWidth + 16; x++) {
+  for (int x = 0; x < xWidth + (MAX_IN_USE * 8); x++) {
     setWholeBuffer(runningBuffer + x);
     drawBuffer();
     delay(del);

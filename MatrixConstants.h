@@ -119,6 +119,6 @@ int letters[96][5] = 	{{0,0,0,0,0},			//SPACE
 /*
  * Array that can be used to turn all LEDs off
  */
-int empty[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};                      
+int empty[MAX_IN_USE * 8] = {0};
 
 #endif
