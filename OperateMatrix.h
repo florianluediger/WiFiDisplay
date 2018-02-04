@@ -1,7 +1,7 @@
 #ifndef OperateMatrix_h
 #define OperateMatrix_h
 
-#define MAX_IN_USE 2    // Number of cascaded MAX7219 ICs 
+#define MAX_IN_USE 4    // Number of cascaded MAX7219 ICs 
 
 /*
  * Pin configuration for the LED matrices
