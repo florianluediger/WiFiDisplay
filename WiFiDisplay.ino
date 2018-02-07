@@ -71,6 +71,7 @@ void runningText(char *text, int len, int del) {
 
 void handleRoot() {
   String text = server.arg("text");
+  server.send(200);
   char* textInput = (char*)malloc((text.length() + 1) * sizeof(char));
   text.toCharArray(textInput, text.length() + 1);
   runningText(textInput, strlen(textInput), 100);
@@ -96,6 +97,7 @@ void setup() {
   Serial.println(WiFi.localIP());
   
   server.on("/",handleRoot);
+  server.onNotFound([]() { server.send(404); });
   server.begin();
   
   Serial.println("HTTP server has started!");
