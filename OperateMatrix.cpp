@@ -2,8 +2,6 @@
  * This code is based on
  * http://playground.arduino.cc/LEDMatrix/Max7219
  */
-
-#include <Arduino.h>
 #include "OperateMatrix.h"
 
 int buf[MAX_IN_USE * 4] = {0};

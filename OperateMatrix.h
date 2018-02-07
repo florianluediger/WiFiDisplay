@@ -1,15 +1,8 @@
 #ifndef OperateMatrix_h
 #define OperateMatrix_h
 
-#define MAX_IN_USE 4    // Number of cascaded MAX7219 ICs 
-
-/*
- * Pin configuration for the LED matrices
- */
-
-#define DATA_IN D5
-#define LOAD D6
-#define CLOCK D7
+#include <Arduino.h>
+#include "Configuration.h"
 
 extern void putByte(byte data);
 extern void maxSingle(byte reg, byte col);
