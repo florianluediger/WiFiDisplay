@@ -13,13 +13,15 @@ IPAddress subnet(SUBNET);
 
 ESP8266WebServer server(80);
 
+RunningText rt;
+
 void handleRoot() {
   String text = server.arg("text");
   server.send(200);
   char* textInput = (char*)malloc((text.length() + 1) * sizeof(char));
   text.toCharArray(textInput, text.length() + 1);
-  RunningText rt;
-  rt.runningText(textInput, strlen(textInput), 100);
+
+  rt.setText(textInput, strlen(textInput));
 }
 
 void setup() {
@@ -50,6 +52,7 @@ void setup() {
 
 void loop() {
   server.handleClient();
+  rt.updatePosition();
   delay(100);
 }
 

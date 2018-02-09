@@ -7,11 +7,14 @@
 class RunningText {
   private:
     int* runningBuffer;
+	int bufferWidth;
+	int position;
 
     void symbolInRunningBuffer(int x, int* arr, int len);
 
   public:
-    void runningText(char *text, int len, int del);
+    void setText(char *text, int len);
+	void updatePosition();
 };
 
 #endif
