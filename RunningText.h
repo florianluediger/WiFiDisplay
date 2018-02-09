@@ -5,16 +5,16 @@
 #include "MatrixConstants.h"
 
 class RunningText {
-  private:
+private:
     int* runningBuffer;
-	int bufferWidth;
-	int position;
+    int bufferWidth;
+    int position;
 
     void symbolInRunningBuffer(int x, int* arr, int len);
 
-  public:
+public:
     void setText(char *text, int len);
-	void updatePosition();
+    void updatePosition();
 };
 
 #endif
