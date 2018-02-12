@@ -14,12 +14,12 @@
 #define CLOCK D7
 
 /*
+* Network configuration
+*/
 #define NETWORK "Your SSID here"  // Your WiFi SSID
 #define PASS "Your password here" // Your WiFi password
 #define IP 10,0,0,70              // The desired IP of your WiFiDisplay
 #define GATEWAY 10,0,0,1          // The IP of your router
-* Network configuration
-*/
 #define SUBNET 255,255,255,0      // Your configured subnet mask
 
 #endif
