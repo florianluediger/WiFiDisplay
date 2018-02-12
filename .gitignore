@@ -1,4 +1,5 @@
 *.vcxproj*
 *.sln
+.vs/
 Debug/
 __vm/
