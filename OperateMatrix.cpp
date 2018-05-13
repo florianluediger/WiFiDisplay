@@ -4,7 +4,7 @@
 */
 #include "OperateMatrix.h"
 
-int buf[MAX_IN_USE * 4] = { 0 };
+int buf[MAX_IN_USE * 8] = { 0 };
 
 /*
 * Configuration bits for the initialization of the MAX7219
