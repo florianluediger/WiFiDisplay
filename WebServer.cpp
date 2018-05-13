@@ -12,7 +12,7 @@ IPAddress subnet(SUBNET);
 
 ESP8266WebServer webServer(80);
 
-void handleRoot() {
+void handleText() {
     String text = webServer.arg("text");
     webServer.send(200);
     char* textInput = (char*)malloc((text.length() + 1) * sizeof(char));
@@ -34,7 +34,7 @@ void WebServer::setup() {
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
 
-    webServer.on("/", handleRoot);
+    webServer.on("/text", handleText);
     webServer.onNotFound([]() { webServer.send(404); });
     webServer.begin();
 
