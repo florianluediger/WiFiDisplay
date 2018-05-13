@@ -1,5 +1,9 @@
 #include "RunningText.h"
 
+int* runningBuffer;
+int bufferWidth;
+int position;
+
 /*
 * Puts a symbol in the running buffer so it can be displayed later.
 *
@@ -7,7 +11,7 @@
 * Parameter arr: array containing the symbol, see MatrixConstants.h file for examples
 * Parameter len: width of the symbol in pixels
 */
-void RunningText::symbolInRunningBuffer(int x, int* arr, int len) {
+void symbolInRunningBuffer(int x, int* arr, int len) {
     for (int i = 0; i < len; i++) {
         runningBuffer[x + i] = *(arr + i);
     }
@@ -46,8 +50,8 @@ void RunningText::setText(char *text, int len) {
 */
 void RunningText::updatePosition() {
     if (position < (bufferWidth - (MAX_IN_USE * 8))) {
-        setWholeBuffer(runningBuffer + position);
-        drawBuffer();
+        Matrix::setWholeBuffer(runningBuffer + position);
+        Matrix::drawBuffer();
         position++;
     }
 }

@@ -4,18 +4,9 @@
 #include "OperateMatrix.h"
 #include "MatrixConstants.h"
 
-class RunningText {
-private:
-    int* runningBuffer;
-    int bufferWidth;
-    int position;
-
-    void symbolInRunningBuffer(int x, int* arr, int len);
-
-public:
-    void setText(char *text, int len);
-    void updatePosition();
-};
-
+namespace RunningText {
+    extern void setText(char *text, int len);
+    extern void updatePosition();
+}
 #endif
 

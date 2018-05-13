@@ -102,7 +102,7 @@ void maxOne(byte maxNr, byte reg, byte col) {
 /*
 * Initializes all MAX7219s in the system
 */
-void setUp() {
+void Matrix::setup() {
     int e = 0;
 
     pinMode(DATA_IN, OUTPUT);
@@ -127,7 +127,7 @@ void setUp() {
 /*
 * Turns all LEDs off
 */
-void clearAll() {
+void Matrix::clearAll() {
     for (int j = 1; j <= MAX_IN_USE; j++) {
         for (int k = 8; k > 0; k--) {
             maxOne(j, k, 0);
@@ -141,7 +141,7 @@ void clearAll() {
 * Parameter x: x position of the desired pixel
 * Parameter y: y position of the desired pixel
 */
-void inBuffer(int x, int y) {
+void Matrix::inBuffer(int x, int y) {
     buf[x] = (buf[x] | (1 << y));
 }
 
@@ -152,7 +152,7 @@ void inBuffer(int x, int y) {
 * Parameter arr: array containing the symbol
 * Parameter len: width of the symbol in pixels
 */
-void symbolInBuffer(int x, int* arr, int len) {
+void Matrix::symbolInBuffer(int x, int* arr, int len) {
     for (int i = 0; i < len; i++) {
         buf[x + i] = *(arr + i);
     }
@@ -163,7 +163,7 @@ void symbolInBuffer(int x, int* arr, int len) {
 *
 * Parameter arr: 2d array containing only 1s for ON and 0s for OFF
 */
-void setWholeBuffer(int arr[MAX_IN_USE * 8][8]) {
+void Matrix::setWholeBuffer(int arr[MAX_IN_USE * 8][8]) {
     for (int x = 0; x < (MAX_IN_USE * 4); x++) {
         buf[x] = 0;
         for (int y = 0; y < 8; y++) {
@@ -179,7 +179,7 @@ void setWholeBuffer(int arr[MAX_IN_USE * 8][8]) {
 *
 * Parameter arr: 1d array containing the new buffer content
 */
-void setWholeBuffer(int* arr) {
+void Matrix::setWholeBuffer(int* arr) {
     for (int x = 0; x < (MAX_IN_USE * 8); x++) {
         buf[x] = arr[x];
     }
@@ -211,7 +211,7 @@ void turnBuffer(int offset) {
 /*
 * Physically draws the buffer onto the matrices
 */
-void drawBuffer() {
+void Matrix::drawBuffer() {
     for (int n = 0; n < MAX_IN_USE; n++) {
         turnBuffer(n * 8);
 
