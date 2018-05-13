@@ -15,7 +15,6 @@ void setup() {
 
 void loop() {
     WebServer::checkForRequest();
-    RunningText::updatePosition();
-    delay(50);
+    yield();
 }
 

@@ -3,6 +3,9 @@
 int* runningBuffer;
 int bufferWidth;
 int position;
+int defaultInterval = 50;
+
+os_timer_t updateTimer;
 
 /*
 * Puts a symbol in the running buffer so it can be displayed later.
@@ -14,6 +17,21 @@ int position;
 void symbolInRunningBuffer(int x, int* arr, int len) {
     for (int i = 0; i < len; i++) {
         runningBuffer[x + i] = *(arr + i);
+    }
+}
+
+/*
+* Shifts the whole text one pixel to the left.
+* Stops when the whole text has been displayed
+*/
+void updatePosition(void *pArg) {
+    if (position < (bufferWidth - (MAX_IN_USE * 8))) {
+        Matrix::setWholeBuffer(runningBuffer + position);
+        Matrix::drawBuffer();
+        position++;
+    }
+    else {
+        os_timer_disarm(&updateTimer);
     }
 }
 
@@ -41,17 +59,7 @@ void RunningText::setText(char *text, int len) {
     symbolInRunningBuffer(pos, empty, MAX_IN_USE * 8);
 
     position = 0;
-}
 
-
-/*
-* Shifts the whole text one pixel to the left.
-* Stops when the whole text has been displayed
-*/
-void RunningText::updatePosition() {
-    if (position < (bufferWidth - (MAX_IN_USE * 8))) {
-        Matrix::setWholeBuffer(runningBuffer + position);
-        Matrix::drawBuffer();
-        position++;
-    }
+    os_timer_setfn(&updateTimer, updatePosition, NULL);
+    os_timer_arm(&updateTimer, defaultInterval, true);
 }
