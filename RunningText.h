@@ -6,7 +6,8 @@
 #include "user_interface.h"
 
 namespace RunningText {
-    extern void setText(char *text, int len);
+    extern void setText(const char *text, int len);
+    extern void setInterval(int interval);
 }
 #endif
 

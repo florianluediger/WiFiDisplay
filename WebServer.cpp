@@ -14,11 +14,16 @@ ESP8266WebServer webServer(80);
 
 void handleText() {
     String text = webServer.arg("text");
+    int interval = atoi(webServer.arg("interval").c_str());
     webServer.send(200);
-    char* textInput = (char*)malloc((text.length() + 1) * sizeof(char));
-    text.toCharArray(textInput, text.length() + 1);
 
-    RunningText::setText(textInput, strlen(textInput));
+    if (text.length() > 0) {
+        const char* textInput = text.c_str();
+        RunningText::setText(textInput, strlen(textInput));
+    }
+    if (interval > 0) {
+        RunningText::setInterval(interval);
+    }
 }
 
 void WebServer::setup() {

@@ -3,7 +3,7 @@
 int* runningBuffer;
 int bufferWidth;
 int position;
-int defaultInterval = 50;
+int timerInterval = 50;
 
 os_timer_t updateTimer;
 
@@ -41,7 +41,7 @@ void updatePosition(void *pArg) {
 * Parameter text: the text that should be displayed
 * Parameter len: the number of characters
 */
-void RunningText::setText(char *text, int len) {
+void RunningText::setText(const char *text, int len) {
     bufferWidth = (len * 6) + (MAX_IN_USE * 16);
     runningBuffer = (int*)malloc(bufferWidth * sizeof(int));
 
@@ -61,5 +61,9 @@ void RunningText::setText(char *text, int len) {
     position = 0;
 
     os_timer_setfn(&updateTimer, updatePosition, NULL);
-    os_timer_arm(&updateTimer, defaultInterval, true);
+    os_timer_arm(&updateTimer, timerInterval, true);
+}
+
+void RunningText::setInterval(int interval) {
+    timerInterval = interval;
 }
