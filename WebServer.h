@@ -2,6 +2,7 @@
 #define WebServer_h
 
 #include "RunningText.h"
+#include "FlashingText.h"
 
 namespace WebServer {
     extern void setup();

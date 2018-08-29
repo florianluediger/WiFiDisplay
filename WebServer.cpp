@@ -15,11 +15,23 @@ ESP8266WebServer webServer(80);
 void handleText() {
     String text = webServer.arg("text");
     String intervalParam = webServer.arg("interval");
+    String mode = webServer.arg("mode");
 
-    if (text.length() > 0) {
-        const char* textInput = text.c_str();
-        RunningText::setText(textInput, strlen(textInput));
+    if (mode.length() == 0 || mode == "running") {
+        if (text.length() > 0) {
+            char* textInput = strdup(text.c_str());
+            RunningText::setText(textInput, strlen(textInput));
+        }
     }
+    else if (mode == "flashing") {
+        if (text.length() > 0) {
+            char* textInput = strdup(text.c_str());
+            FlashingText::setText(textInput, strlen(textInput));
+        }
+    }
+    else {
+        webServer.send(400, "text/plain", "Mode must be either running or flashing!");
+    }    
 
     if (intervalParam.length() > 0) {
         int interval = atoi(intervalParam.c_str());
