@@ -14,16 +14,23 @@ ESP8266WebServer webServer(80);
 
 void handleText() {
     String text = webServer.arg("text");
-    int interval = atoi(webServer.arg("interval").c_str());
-    webServer.send(200);
+    String intervalParam = webServer.arg("interval");
 
     if (text.length() > 0) {
         const char* textInput = text.c_str();
         RunningText::setText(textInput, strlen(textInput));
     }
-    if (interval > 0) {
+
+    if (intervalParam.length() > 0) {
+        int interval = atoi(intervalParam.c_str());
+        if (interval < 50) {
+            webServer.send(400, "text/plain", "Interval must not be smaller than 50!");
+            return;
+        }
         RunningText::setInterval(interval);
     }
+
+    webServer.send(200);
 }
 
 void WebServer::setup() {

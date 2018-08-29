@@ -66,4 +66,6 @@ void RunningText::setText(const char *text, int len) {
 
 void RunningText::setInterval(int interval) {
     timerInterval = interval;
+    os_timer_disarm(&updateTimer);
+    os_timer_arm(&updateTimer, timerInterval, true);
 }
