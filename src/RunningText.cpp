@@ -43,7 +43,8 @@ void updatePosition(void *pArg) {
 */
 void RunningText::setText(char *text, int len) {
     bufferWidth = (len * 6) + (MAX_IN_USE * 16);
-    runningBuffer = (int*)malloc(bufferWidth * sizeof(int));
+    delete[] runningBuffer;
+    runningBuffer = new int [bufferWidth];
 
     int pos = 0;
     symbolInRunningBuffer(pos, empty, MAX_IN_USE * 8);

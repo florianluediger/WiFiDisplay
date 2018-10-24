@@ -4,7 +4,7 @@
 /*
 * Number of cascaded MAX7219 ICs
 */
-#define MAX_IN_USE 2
+#define MAX_IN_USE 8
 
 /*
 * Pin configuration for the LED matrices

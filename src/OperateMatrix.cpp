@@ -192,7 +192,7 @@ void Matrix::setWholeBuffer(int* arr) {
 * Parameter offset: which matrix should be rotated (0 = first matrix, 8 = second matrix, ...)
 */
 void turnBuffer(int offset) {
-    int *bufferCopy = (int*)malloc(8 * sizeof(int));
+    int *bufferCopy = new int [8];
     memcpy(bufferCopy, buf + offset, 8 * sizeof(int));
 
     for (int x = 0; x < 8; x++) {
@@ -205,7 +205,7 @@ void turnBuffer(int offset) {
                 buf[y + offset] += (1 << x);
         }
     }
-    free(bufferCopy);
+    delete[] bufferCopy;
 }
 
 /*
