@@ -1,13 +1,13 @@
 #include "FlashingText.h"
 
 int wordCount;
-char** flashingBuffer;
+String* flashingBuffer;
 int currentText;
 int displayDuration = 2000;
 
 os_timer_t interruptTimer;
 
-void setCenteredText(char* text) {
+void setCenteredText(String text) {
     Serial.println("Method called");
     Matrix::symbolInBuffer(5, letters[34 + currentText], 5);
     Matrix::drawBuffer();
@@ -27,17 +27,17 @@ void updateCurrentText(void *pArg) {
 * Parameter text: the text that should be displayed
 * Parameter len: the number of characters
 */
-void FlashingText::setText(char *text, int len) {
+void FlashingText::setText(String text, int len) {
     Serial.println(text);
     wordCount = 0;
-    char *word;
+    /*char *word;
     word = strtok(text, ";");
     do {
         Serial.println(word);
         flashingBuffer[wordCount] = word;
         wordCount++;
         word = strtok(NULL, ";");
-    } while (word != NULL);
+    } while (word != NULL);*/
 
     Serial.println(flashingBuffer[0]);
     Serial.println(flashingBuffer[1]);

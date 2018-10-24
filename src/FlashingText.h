@@ -6,7 +6,7 @@
 #include "user_interface.h"
 
 namespace FlashingText {
-    extern void setText(char *text, int len);
+    extern void setText(String text, int len);
     extern void setInterval(int interval);
     extern void stopFlashing();
 }

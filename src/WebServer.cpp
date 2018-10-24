@@ -19,14 +19,12 @@ void handleText() {
 
     if (mode.length() == 0 || mode == "running") {
         if (text.length() > 0) {
-            char* textInput = strdup(text.c_str());
-            RunningText::setText(textInput, strlen(textInput));
+            RunningText::setText(text, text.length());
         }
     }
     else if (mode == "flashing") {
         if (text.length() > 0) {
-            char* textInput = strdup(text.c_str());
-            FlashingText::setText(textInput, strlen(textInput));
+            FlashingText::setText(text, text.length());
         }
     }
     else {

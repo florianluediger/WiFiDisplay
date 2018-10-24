@@ -41,7 +41,7 @@ void updatePosition(void *pArg) {
 * Parameter text: the text that should be displayed
 * Parameter len: the number of characters
 */
-void RunningText::setText(char *text, int len) {
+void RunningText::setText(String text, int len) {
     bufferWidth = (len * 6) + (MAX_IN_USE * 16);
     delete[] runningBuffer;
     runningBuffer = new int [bufferWidth];
