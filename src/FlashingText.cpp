@@ -27,10 +27,6 @@ void setCenteredText(String text) {
 }
 
 void updateCurrentText(void *pArg) {
-    Serial.println("updateCurrentText current text:");
-    Serial.println(flashingBuffer[currentText]);
-    Serial.println("Value of currentText:");
-    Serial.println(currentText);
     setCenteredText(flashingBuffer[currentText]);
     currentText++;
     if (currentText >= wordCount)
@@ -44,9 +40,6 @@ void updateCurrentText(void *pArg) {
 * Parameter len: the number of characters
 */
 void FlashingText::setText(String text, int len) {
-    Serial.println("Input text: ");
-    Serial.println(text);
-
     if(text.length() < 1)
         return;
     
@@ -55,9 +48,6 @@ void FlashingText::setText(String text, int len) {
         if (text[i] == ';')
             wordCount++;
     }
-
-    Serial.println("Value of wordCount:");
-    Serial.println(wordCount);
     
     delete[] flashingBuffer;
     flashingBuffer = new String [wordCount];
@@ -72,11 +62,6 @@ void FlashingText::setText(String text, int len) {
         }
     }
     flashingBuffer[wordIndex] = text.substring(lastSemiColon+1);
-
-    Serial.println("Contents of flashing buffer:");
-    for (int i = 0; i < wordCount; i++)
-        Serial.println(flashingBuffer[i]);
-    Serial.println("###");
 
     currentText = 0;
 

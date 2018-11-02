@@ -109,7 +109,6 @@ void Matrix::setup() {
     pinMode(CLOCK, OUTPUT);
     pinMode(LOAD, OUTPUT);
 
-    //beginSerial(9600);
     digitalWrite(13, HIGH);
 
     //initiation of the max 7219
