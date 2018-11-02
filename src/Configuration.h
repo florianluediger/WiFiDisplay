@@ -16,6 +16,7 @@
 /*
 * Network configuration
 */
+#define NETWORK_MODE 0   // Possible values: 0 for Station mode and 1 for AP mode
 #define NETWORK "Your SSID here"  // Your WiFi SSID
 #define PASS "Your password here" // Your WiFi password
 #define IP 10,0,0,70              // The desired IP of your WiFiDisplay
