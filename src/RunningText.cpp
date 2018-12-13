@@ -42,6 +42,7 @@ void updatePosition(void *pArg) {
 * Parameter len: the number of characters
 */
 void RunningText::setText(String text, int len) {
+    os_timer_disarm(&updateTimer);
     bufferWidth = (len * 6) + (MAX_IN_USE * 16);
     delete[] runningBuffer;
     runningBuffer = new int [bufferWidth];
