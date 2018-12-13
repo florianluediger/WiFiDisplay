@@ -42,7 +42,7 @@ void updatePosition(void *pArg) {
 * Parameter len: the number of characters
 */
 void RunningText::setText(String text, int len) {
-    os_timer_disarm(&updateTimer);
+    stop();
     bufferWidth = (len * 6) + (MAX_IN_USE * 16);
     delete[] runningBuffer;
     runningBuffer = new int [bufferWidth];
@@ -70,4 +70,9 @@ void RunningText::setInterval(int interval) {
     timerInterval = interval;
     os_timer_disarm(&updateTimer);
     os_timer_arm(&updateTimer, timerInterval, true);
+}
+
+void RunningText::stop() {
+    os_timer_disarm(&updateTimer);
+    Matrix::clearAll();
 }

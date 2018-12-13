@@ -42,6 +42,11 @@ void handleRunningText() {
     webServer.send(200);
 }
 
+void handleStopRunningText() {
+    RunningText::stop();
+    webServer.send(200);
+}
+
 void handleFlashingText() {
     String text = webServer.arg("text");
 
@@ -52,6 +57,11 @@ void handleFlashingText() {
 
     FlashingText::setText(text, text.length());
     
+    webServer.send(200);
+}
+
+void handleStopFlashingText() {
+    FlashingText::stop();
     webServer.send(200);
 }
 
@@ -89,7 +99,9 @@ void WebServer::setup() {
         Serial.println("Unknown network mode configuration");
 
     webServer.on("/text/running", handleRunningText);
+    webServer.on("/text/running/stop", handleStopRunningText);
     webServer.on("/text/flashing", handleFlashingText);
+    webServer.on("/text/flashing/stop", handleStopFlashingText);
     webServer.onNotFound([]() { webServer.send(404); });
     webServer.begin();
 

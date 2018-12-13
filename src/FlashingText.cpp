@@ -40,7 +40,7 @@ void updateCurrentText(void *pArg) {
 * Parameter len: the number of characters
 */
 void FlashingText::setText(String text, int len) {
-    os_timer_disarm(&interruptTimer);
+    stop();
 
     if(text.length() < 1)
         return;
@@ -77,7 +77,7 @@ void FlashingText::setInterval(int interval) {
     os_timer_arm(&interruptTimer, displayDuration, true);
 }
 
-void FlashingText::stopFlashing() {
+void FlashingText::stop() {
     os_timer_disarm(&interruptTimer);
     Matrix::clearAll();
 }
