@@ -1,21 +1,21 @@
 #ifndef Configuration_h
 #define Configuration_h
 
-/*
-* Number of cascaded MAX7219 ICs
-*/
+/**
+ * Number of cascaded MAX7219 ICs
+ */
 #define MAX_IN_USE 8
 
-/*
-* Pin configuration for the LED matrices
-*/
+/**
+ * Pin configuration for the LED matrices
+ */
 #define DATA_IN D5
 #define LOAD D6
 #define CLOCK D7
 
-/*
-* Network configuration
-*/
+/**
+ * Network configuration
+ */
 #define NETWORK_MODE 0   // Possible values: 0 for Station mode and 1 for AP mode
 #define NETWORK "Your SSID here"  // Your WiFi SSID
 #define PASS "Your password here" // Your WiFi password
