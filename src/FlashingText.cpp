@@ -40,6 +40,8 @@ void updateCurrentText(void *pArg) {
 * Parameter len: the number of characters
 */
 void FlashingText::setText(String text, int len) {
+    os_timer_disarm(&interruptTimer);
+
     if(text.length() < 1)
         return;
     
