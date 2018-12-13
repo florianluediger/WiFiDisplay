@@ -9,6 +9,7 @@ namespace FlashingText {
     extern int setText(String text);
     extern int setInterval(int interval);
     extern void stop();
+    extern bool isFlashing();
 }
 #endif
 

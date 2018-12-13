@@ -6,6 +6,7 @@ int currentText;
 int displayDuration = 2000;
 
 os_timer_t interruptTimer;
+bool flashing = false;
 
 /**
  * Displays the provided text in the center of the display.
@@ -93,6 +94,7 @@ int FlashingText::setText(String text) {
 
     os_timer_setfn(&interruptTimer, updateCurrentText, NULL);
     os_timer_arm(&interruptTimer, displayDuration, true);
+    flashing = true;
 
     return 0;
 }
@@ -111,6 +113,7 @@ int FlashingText::setInterval(int interval) {
     displayDuration = interval;
     os_timer_disarm(&interruptTimer);
     os_timer_arm(&interruptTimer, displayDuration, true);
+    flashing = true;
 
     return 0;
 }
@@ -120,5 +123,13 @@ int FlashingText::setInterval(int interval) {
  */
 void FlashingText::stop() {
     os_timer_disarm(&interruptTimer);
+    flashing = false;
     Matrix::clearAll();
+}
+
+/**
+ * Checks, if the display is currently displaying a flashing text.
+ */
+bool FlashingText::isFlashing() {
+    return flashing;
 }

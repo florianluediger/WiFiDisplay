@@ -9,6 +9,7 @@ namespace RunningText {
     extern void setText(String text);
     extern int setInterval(int interval);
     extern void stop();
+    extern bool isRunning();
 }
 #endif
 

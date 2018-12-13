@@ -6,6 +6,7 @@ int position;
 int timerInterval = 50;
 
 os_timer_t updateTimer;
+bool running = false;
 
 /**
  * Puts a symbol in the running buffer so it can be displayed later.
@@ -32,6 +33,7 @@ void updatePosition(void *pArg) {
     }
     else {
         os_timer_disarm(&updateTimer);
+        running = false;
     }
 }
 
@@ -42,7 +44,6 @@ void updatePosition(void *pArg) {
  */
 void RunningText::setText(String text) {
     stop();
-    int len = text.length();
     bufferWidth = (text.length() * 6) + (MAX_IN_USE * 16);
     delete[] runningBuffer;
     runningBuffer = new int [bufferWidth];
@@ -51,7 +52,7 @@ void RunningText::setText(String text) {
     symbolInRunningBuffer(pos, empty, MAX_IN_USE * 8);
     pos += (MAX_IN_USE * 8);
 
-    for (int i = 0; i < text.length(); i++) {
+    for (unsigned int i = 0; i < text.length(); i++) {
         symbolInRunningBuffer(pos, letters[text[i] - 32], 5);
         pos += 5;
         runningBuffer[pos] = 0;
@@ -64,6 +65,7 @@ void RunningText::setText(String text) {
 
     os_timer_setfn(&updateTimer, updatePosition, NULL);
     os_timer_arm(&updateTimer, timerInterval, true);
+    running = true;
 }
 
 /**
@@ -81,6 +83,7 @@ int RunningText::setInterval(int interval) {
     timerInterval = interval;
     os_timer_disarm(&updateTimer);
     os_timer_arm(&updateTimer, timerInterval, true);
+    running = true;
 
     return 0;
 }
@@ -90,5 +93,13 @@ int RunningText::setInterval(int interval) {
  */
 void RunningText::stop() {
     os_timer_disarm(&updateTimer);
+    running = false;
     Matrix::clearAll();
+}
+
+/**
+ * Checks, if the display is currently displaying a running text.
+ */
+bool RunningText::isRunning() {
+    return running;
 }
