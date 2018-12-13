@@ -14,33 +14,41 @@ ESP8266WebServer webServer(80);
 
 void handleText() {
     String text = webServer.arg("text");
-    String intervalParam = webServer.arg("interval");
     String mode = webServer.arg("mode");
+    String intervalParam = webServer.arg("interval");
+    
+    int interval = 0;
+    if (intervalParam.length() > 0)
+        interval = atoi(intervalParam.c_str());
 
-    if (mode.length() == 0 || mode == "running") {
-        if (text.length() > 0) {
-            RunningText::setText(text, text.length());
-        }
-    }
-    else if (mode == "flashing") {
-        if (text.length() > 0) {
-            FlashingText::setText(text, text.length());
-        }
-    }
-    else {
-        webServer.send(400, "text/plain", "Mode must be either running or flashing!");
-    }    
+    // The default behavior is running text
+    if (mode.length() == 0)
+        mode = "running";
 
-    if (intervalParam.length() > 0) {
-        int interval = atoi(intervalParam.c_str());
-        if (interval < 50) {
-            webServer.send(400, "text/plain", "Interval must not be smaller than 50!");
-            return;
-        }
+    // An empty request is not valid
+    if (interval == 0 && text.length() <= 0) {
+        webServer.send(400, "text/plain", "Your request did not contain any valid data!");
+        return;
+    }
+
+    // An interval lower than 50 causes problems
+    if (interval > 0 && interval < 50) {
+        webServer.send(400, "text/plain", "Interval must not be smaller than 50!");
+        return;
+    }
+
+    // Changing the interval only applies to the running text
+    if (interval > 50 && mode == "running")
         RunningText::setInterval(interval);
-    }
 
-    webServer.send(200);
+    if (text.length() > 0) {
+        if (mode == "running")
+            RunningText::setText(text, text.length());
+        else if (mode == "flashing")
+            FlashingText::setText(text, text.length());
+        else
+            webServer.send(400, "text/plain", "Mode must be either running or flashing!");
+    }
 }
 
 void setupAP() {
