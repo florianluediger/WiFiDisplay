@@ -1,8 +1,8 @@
 #include "MatrixConstants.h"
 
-/*
-* 3-pixel wide mapping of the numbers 0-9 on arrays that can be drawn on the display
-*/
+/**
+ * 3-pixel wide mapping of the numbers 0-9 on arrays that can be drawn on the display
+ */
 int numbers[10][3] = { {126,66,126},        //0
                         {0,0,126},          //1
                         {114,82,94},        //2
@@ -14,10 +14,10 @@ int numbers[10][3] = { {126,66,126},        //0
                         {126,82,126},       //8
                         {94,82,126} };      //9
 
-/*
-* 5-pixel wide mapping of the most important part of the ASCII alphabet
-* on arrays that can be drawn on the display
-*/
+/**
+ * 5-pixel wide mapping of the most important part of the ASCII alphabet
+ * on arrays that can be drawn on the display
+ */
 int letters[96][5] = { {0,0,0,0,0},         //SPACE
                     {0,0,79,0,0},           //!
                     {0,3,0,3,0},            //"
@@ -114,7 +114,7 @@ int letters[96][5] = { {0,0,0,0,0},         //SPACE
                     {65,65,65,62,8},        //}
                     {8,4,8,16,8} };         //~
 
-/*
-* Array that can be used to turn all LEDs off
-*/
+/**
+ * Array that can be used to turn all LEDs off
+ */
 int empty[MAX_IN_USE * 8] = { 0 };

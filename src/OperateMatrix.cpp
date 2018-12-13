@@ -1,14 +1,14 @@
-/*
-* This code is based on
-* http://playground.arduino.cc/LEDMatrix/Max7219
-*/
+/**
+ * This code is based on
+ * http://playground.arduino.cc/LEDMatrix/Max7219
+ */
 #include "OperateMatrix.h"
 
 int buf[MAX_IN_USE * 8] = { 0 };
 
-/*
-* Configuration bits for the initialization of the MAX7219
-*/
+/**
+ * Configuration bits for the initialization of the MAX7219
+ */
 byte max7219_reg_noop = 0x00;
 byte max7219_reg_digit0 = 0x01;
 byte max7219_reg_digit1 = 0x02;
@@ -24,9 +24,9 @@ byte max7219_reg_scanLimit = 0x0b;
 byte max7219_reg_shutdown = 0x0c;
 byte max7219_reg_displayTest = 0x0f;
 
-/*
-* Writes one byte of data to the MAX7219 chip
-*/
+/**
+ * Writes one byte of data to the MAX7219 chip
+ */
 void putByte(byte data) {
     byte i = 8;
     byte mask;
@@ -44,10 +44,10 @@ void putByte(byte data) {
     }
 }
 
-/*
-* Easy to use function to write data
-* that only works with a single MAX7219
-*/
+/**
+ * Easy to use function to write data
+ * that only works with a single MAX7219
+ */
 void maxSingle(byte reg, byte col) {
     digitalWrite(LOAD, LOW);      // begin
     putByte(reg);                 // specify register
@@ -56,9 +56,9 @@ void maxSingle(byte reg, byte col) {
     digitalWrite(LOAD, HIGH);
 }
 
-/*
-* Writes data to all  MAX7219's in the system
-*/
+/**
+ * Writes data to all  MAX7219's in the system
+ */
 void maxAll(byte reg, byte col) {
     int c = 0;
     digitalWrite(LOAD, LOW);  // begin
@@ -70,10 +70,10 @@ void maxAll(byte reg, byte col) {
     digitalWrite(LOAD, HIGH);
 }
 
-/*
-* Addresses different MAX7219s,
-* while having a couple of them cascaded
-*/
+/**
+ * Addresses different MAX7219s,
+ * while having a couple of them cascaded
+ */
 void maxOne(byte maxNr, byte reg, byte col) {
     if (reg > 8 || reg < 0) {
         return;
@@ -99,9 +99,9 @@ void maxOne(byte maxNr, byte reg, byte col) {
     digitalWrite(LOAD, HIGH);
 }
 
-/*
-* Initializes all MAX7219s in the system
-*/
+/**
+ * Initializes all MAX7219s in the system
+ */
 void Matrix::setup() {
     int e = 0;
 
@@ -123,9 +123,9 @@ void Matrix::setup() {
                                         // range: 0x00 to 0x0f
 }
 
-/*
-* Turns all LEDs off
-*/
+/**
+ * Turns all LEDs off
+ */
 void Matrix::clearAll() {
     for (int j = 1; j <= MAX_IN_USE; j++) {
         for (int k = 8; k > 0; k--) {
@@ -134,34 +134,34 @@ void Matrix::clearAll() {
     }
 }
 
-/*
-* Sets the LED at the specified position to ON inside of the buffer
-*
-* Parameter x: x position of the desired pixel
-* Parameter y: y position of the desired pixel
-*/
+/**
+ * Sets the LED at the specified position to ON inside of the buffer
+ *
+ * Parameter x: x position of the desired pixel
+ * Parameter y: y position of the desired pixel
+ */
 void Matrix::inBuffer(int x, int y) {
     buf[x] = (buf[x] | (1 << y));
 }
 
-/*
-* Puts a whole symbol into the buffer
-*
-* Parameter x: how far to the right the symbol should be placed in pixels
-* Parameter arr: array containing the symbol
-* Parameter len: width of the symbol in pixels
-*/
+/**
+ * Puts a whole symbol into the buffer
+ *
+ * Parameter x: how far to the right the symbol should be placed in pixels
+ * Parameter arr: array containing the symbol
+ * Parameter len: width of the symbol in pixels
+ */
 void Matrix::symbolInBuffer(int x, int* arr, int len) {
     for (int i = 0; i < len; i++) {
         buf[x + i] = *(arr + i);
     }
 }
 
-/*
-* Overrides the current buffer content
-*
-* Parameter arr: 2d array containing only 1s for ON and 0s for OFF
-*/
+/**
+ * Overrides the current buffer content
+ *
+ * Parameter arr: 2d array containing only 1s for ON and 0s for OFF
+ */
 void Matrix::setWholeBuffer(int arr[MAX_IN_USE * 8][8]) {
     for (int x = 0; x < (MAX_IN_USE * 4); x++) {
         buf[x] = 0;
@@ -173,23 +173,23 @@ void Matrix::setWholeBuffer(int arr[MAX_IN_USE * 8][8]) {
     }
 }
 
-/*
-* Overrrides the current buffer content
-*
-* Parameter arr: 1d array containing the new buffer content
-*/
+/**
+ * Overrrides the current buffer content
+ *
+ * Parameter arr: 1d array containing the new buffer content
+ */
 void Matrix::setWholeBuffer(int* arr) {
     for (int x = 0; x < (MAX_IN_USE * 8); x++) {
         buf[x] = arr[x];
     }
 }
 
-/*
-* Rotates 8 columns of the content of the buffer by 90 degrees
-* This is onyl necessary because the wiring of the matrices
-*
-* Parameter offset: which matrix should be rotated (0 = first matrix, 8 = second matrix, ...)
-*/
+/**
+ * Rotates 8 columns of the content of the buffer by 90 degrees
+ * This is onyl necessary because the wiring of the matrices
+ *
+ * Parameter offset: which matrix should be rotated (0 = first matrix, 8 = second matrix, ...)
+ */
 void turnBuffer(int offset) {
     int *bufferCopy = new int [8];
     memcpy(bufferCopy, buf + offset, 8 * sizeof(int));
@@ -207,9 +207,9 @@ void turnBuffer(int offset) {
     delete[] bufferCopy;
 }
 
-/*
-* Physically draws the buffer onto the matrices
-*/
+/**
+ * Physically draws the buffer onto the matrices
+ */
 void Matrix::drawBuffer() {
     for (int n = 0; n < MAX_IN_USE; n++) {
         turnBuffer(n * 8);

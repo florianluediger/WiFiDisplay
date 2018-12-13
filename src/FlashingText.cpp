@@ -7,6 +7,11 @@ int displayDuration = 2000;
 
 os_timer_t interruptTimer;
 
+/**
+ * Displays the provided text in the center of the display.
+ * 
+ * Parameter text: The text that should be displayed.
+ */
 void setCenteredText(String text) {
     int ledLength = text.length() * 6 - 1;
     if (ledLength > MAX_IN_USE * 8)
@@ -26,6 +31,9 @@ void setCenteredText(String text) {
     Matrix::drawBuffer();
 }
 
+/**
+ * Changes the displayed text to the next text in the buffer.
+ */
 void updateCurrentText(void *pArg) {
     setCenteredText(flashingBuffer[currentText]);
     currentText++;
@@ -33,12 +41,12 @@ void updateCurrentText(void *pArg) {
         currentText = 0;
 }
 
-/*
-* Sets the text that should be displayed.
-*
-* Parameter text: the text that should be displayed
-* Parameter len: the number of characters
-*/
+/**
+ * Sets the text that should be displayed.
+ *
+ * Parameter text: The text that should be displayed.
+ * Returns: 0 on success, 1 when a word exceeds the maximum length of the display.
+ */
 int FlashingText::setText(String text) {
     stop();
 
@@ -89,6 +97,12 @@ int FlashingText::setText(String text) {
     return 0;
 }
 
+/**
+ * Sets the time each text fragment is displayed.
+ * 
+ * Parameter interval: The time period in milliseconds.
+ * Returns: 0 on success, 1 when the time interval is too low.
+ */
 int FlashingText::setInterval(int interval) {
     // An interval lower than 300 makes no sense
     if (interval < 300)
@@ -101,6 +115,9 @@ int FlashingText::setInterval(int interval) {
     return 0;
 }
 
+/**
+ * Stops the flashing text and clears the display.
+ */
 void FlashingText::stop() {
     os_timer_disarm(&interruptTimer);
     Matrix::clearAll();

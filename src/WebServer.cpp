@@ -3,15 +3,18 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
-/*
-* Network Configuration
-*/
+/**
+ * Network Configuration
+ */
 IPAddress ip(IP);
 IPAddress gateway(GATEWAY);
 IPAddress subnet(SUBNET);
 
 ESP8266WebServer webServer(80);
 
+/**
+ * Handles requests for displaying a running text or changing the running speed.
+ */
 void handleRunningText() {
     String text = webServer.arg("text");
     String interval = webServer.arg("interval");
@@ -36,11 +39,17 @@ void handleRunningText() {
     webServer.send(200);
 }
 
+/**
+ * Handles request for stopping the running text.
+ */
 void handleStopRunningText() {
     RunningText::stop();
     webServer.send(200);
 }
 
+/**
+ * Handles requests for displaying a flashing text or changing the flashing duration.
+ */
 void handleFlashingText() {
     String text = webServer.arg("text");
     String interval = webServer.arg("interval");
@@ -69,11 +78,17 @@ void handleFlashingText() {
     webServer.send(200);
 }
 
+/**
+ * Handles requests for stopping the flashing text.
+ */
 void handleStopFlashingText() {
     FlashingText::stop();
     webServer.send(200);
 }
 
+/**
+ * Sets the ESP up in AP mode and creates a WiFi network.
+ */
 void setupAP() {
     WiFi.mode(WIFI_AP);
 
@@ -85,6 +100,9 @@ void setupAP() {
     Serial.println(WiFi.softAPIP());
 }
 
+/**
+ * Sets the ESP up in station mode and connects to a WiFi network.
+ */
 void setupStation() {
     WiFi.begin(NETWORK, PASS);
     WiFi.config(ip, gateway, subnet);
@@ -99,6 +117,9 @@ void setupStation() {
     Serial.println(WiFi.localIP());
 }
 
+/**
+ * Starts the web server to be able to handle different requests.
+ */
 void WebServer::setup() {
     if (NETWORK_MODE == 0)
         setupStation();
@@ -117,6 +138,9 @@ void WebServer::setup() {
     Serial.println("HTTP server has started.");
 }
 
+/**
+ * Checks, if any new requests have occurred since the last check.
+ */
 void WebServer::checkForRequest() {
     webServer.handleClient();
 }

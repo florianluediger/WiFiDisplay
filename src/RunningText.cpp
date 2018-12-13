@@ -7,22 +7,22 @@ int timerInterval = 50;
 
 os_timer_t updateTimer;
 
-/*
-* Puts a symbol in the running buffer so it can be displayed later.
-*
-* Parameter x: how far to the right the symbol should be placed in pixels
-* Parameter arr: array containing the symbol, see MatrixConstants.h file for examples
-* Parameter len: width of the symbol in pixels
-*/
+/**
+ * Puts a symbol in the running buffer so it can be displayed later.
+ *
+ * Parameter x: How far to the right the symbol should be placed in pixels.
+ * Parameter arr: Array containing the symbol, see MatrixConstants.h file for examples.
+ * Parameter len: Width of the symbol in pixels.
+ */
 void symbolInRunningBuffer(int x, int* arr, int len) {
     for (int i = 0; i < len; i++) {
         runningBuffer[x + i] = *(arr + i);
     }
 }
 
-/*
+/**
 * Shifts the whole text one pixel to the left.
-* Stops when the whole text has been displayed
+* Stops when the whole text has been displayed.
 */
 void updatePosition(void *pArg) {
     if (position < (bufferWidth - (MAX_IN_USE * 8))) {
@@ -35,12 +35,11 @@ void updatePosition(void *pArg) {
     }
 }
 
-/*
-* Sets the text that should be displayed.
-*
-* Parameter text: the text that should be displayed
-* Parameter len: the number of characters
-*/
+/**
+ * Sets the text that should be displayed.
+ *
+ * Parameter text: The text that should be displayed.
+ */
 void RunningText::setText(String text) {
     stop();
     int len = text.length();
@@ -67,6 +66,12 @@ void RunningText::setText(String text) {
     os_timer_arm(&updateTimer, timerInterval, true);
 }
 
+/**
+ * Sets the time interval between the steps the text takes on the display.
+ * 
+ * Parameter interval: The time interval in milliseconds.
+ * Returns: 0 on success, 1 when the time interval is too low.
+ */
 int RunningText::setInterval(int interval) {
 
     // An interval lower than 50 causes problems
@@ -80,6 +85,9 @@ int RunningText::setInterval(int interval) {
     return 0;
 }
 
+/**
+ * Stops the running text and clears the display.
+ */
 void RunningText::stop() {
     os_timer_disarm(&updateTimer);
     Matrix::clearAll();
