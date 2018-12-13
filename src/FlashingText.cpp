@@ -62,6 +62,7 @@ void updateCurrentText(void *pArg) {
  */
 int FlashingText::setText(String text, int iterations) {
     stop();
+    RunningText::stop();
 
     if(text.length() < 1)
         return 1;

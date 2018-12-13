@@ -4,6 +4,7 @@
 #include "OperateMatrix.h"
 #include "MatrixConstants.h"
 #include "user_interface.h"
+#include "FlashingText.h"
 
 namespace RunningText {
     extern void setText(String text);

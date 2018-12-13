@@ -44,6 +44,7 @@ void updatePosition(void *pArg) {
  */
 void RunningText::setText(String text) {
     stop();
+    FlashingText::stop();
     bufferWidth = (text.length() * 6) + (MAX_IN_USE * 16);
     delete[] runningBuffer;
     runningBuffer = new int [bufferWidth];

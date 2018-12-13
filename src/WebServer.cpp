@@ -94,8 +94,28 @@ void handleStopFlashingText() {
     webServer.send(200);
 }
 
+/**
+ * Handles requests for checking, if the flashing text is currently being displayed.
+ */
 void handleFlashingTextIsFlashing() {
     webServer.send(200, "text/plain", (String)FlashingText::isFlashing());
+}
+
+/**
+ * Handles requests for checking, if any text is currently being displayed.
+ */
+void handleAnyDisplaying() {
+    bool isDisplaying = RunningText::isRunning() || FlashingText::isFlashing();
+    webServer.send(200, "text/plain", (String)isDisplaying);
+}
+
+/**
+ * Handles requests for stopping anything that is currently being displayed.
+ */
+void handleStopAny() {
+    RunningText::stop();
+    FlashingText::stop();
+    webServer.send(200);
 }
 
 /**
@@ -146,6 +166,8 @@ void WebServer::setup() {
     webServer.on("/text/flashing", handleFlashingText);
     webServer.on("/text/flashing/stop", handleStopFlashingText);
     webServer.on("/text/flashing/isflashing", handleFlashingTextIsFlashing);
+    webServer.on("/text/any/displaying", handleAnyDisplaying);
+    webServer.on("/text/any/stop", handleStopAny);
     webServer.onNotFound([]() { webServer.send(404); });
     webServer.begin();
 

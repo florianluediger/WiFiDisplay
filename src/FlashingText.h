@@ -4,6 +4,7 @@
 #include "OperateMatrix.h"
 #include "MatrixConstants.h"
 #include "user_interface.h"
+#include "RunningText.h"
 
 namespace FlashingText {
     extern int setText(String text, int iterations);
