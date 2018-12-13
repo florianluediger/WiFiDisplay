@@ -6,8 +6,8 @@
 #include "user_interface.h"
 
 namespace RunningText {
-    extern void setText(String text, int len);
-    extern void setInterval(int interval);
+    extern void setText(String text);
+    extern int setInterval(int interval);
     extern void stop();
 }
 #endif

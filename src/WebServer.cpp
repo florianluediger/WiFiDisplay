@@ -14,30 +14,24 @@ ESP8266WebServer webServer(80);
 
 void handleRunningText() {
     String text = webServer.arg("text");
-    String intervalParam = webServer.arg("interval");
-    
-    int interval = 0;
-    if (intervalParam.length() > 0)
-        interval = atoi(intervalParam.c_str());
+    String interval = webServer.arg("interval");
 
     // An empty request is not valid
-    if (interval == 0 && text.length() <= 0) {
-        webServer.send(400, "text/plain", "Your request did not contain any valid data!");
+    if (interval.length() <= 0 && text.length() <= 0) {
+        webServer.send(400, "text/plain", "Your request did not contain any valid data.");
         return;
     }
 
-    // An interval lower than 50 causes problems
-    if (interval > 0 && interval < 50) {
-        webServer.send(400, "text/plain", "Interval must not be smaller than 50!");
-        return;
+    if (interval.length() > 0) {
+        int success = RunningText::setInterval(atoi(interval.c_str()));
+        if (success != 0) {
+            webServer.send(400, "text/plain", "Interval must not be smaller than 50.");
+            return;
+        }
     }
 
-    if (interval > 50)
-        RunningText::setInterval(interval);
-
-    if (text.length() > 0) {
-        RunningText::setText(text, text.length());
-    }
+    if (text.length() > 0)
+        RunningText::setText(text);
 
     webServer.send(200);
 }
@@ -49,13 +43,28 @@ void handleStopRunningText() {
 
 void handleFlashingText() {
     String text = webServer.arg("text");
+    String interval = webServer.arg("interval");
 
-    if (text.length() <= 0) {
-        webServer.send(400, "text/plain", "Your request did not contain any valid data!");
+    // An empty request is not valid
+    if (interval.length() <= 0 && text.length() <= 0) {
+        webServer.send(400, "text/plain", "Your request did not contain any valid data.");
         return;
     }
 
-    FlashingText::setText(text, text.length());
+    if (interval.length() > 0) {
+        int success = FlashingText::setInterval(atoi(interval.c_str()));
+        if (success != 0) {
+            webServer.send(400, "text/plain", "The interval is too low to make sense.");
+            return;
+        }
+    }
+
+    if (text.length() > 0) {
+        int success = FlashingText::setText(text);
+        if (success != 0) {
+            webServer.send(400, "text/plain", "Your string is not valid, consider splitting words into multiple sections.");
+        }
+    }
     
     webServer.send(200);
 }
@@ -105,7 +114,7 @@ void WebServer::setup() {
     webServer.onNotFound([]() { webServer.send(404); });
     webServer.begin();
 
-    Serial.println("HTTP server has started!");
+    Serial.println("HTTP server has started.");
 }
 
 void WebServer::checkForRequest() {

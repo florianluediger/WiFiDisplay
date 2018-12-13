@@ -41,9 +41,10 @@ void updatePosition(void *pArg) {
 * Parameter text: the text that should be displayed
 * Parameter len: the number of characters
 */
-void RunningText::setText(String text, int len) {
+void RunningText::setText(String text) {
     stop();
-    bufferWidth = (len * 6) + (MAX_IN_USE * 16);
+    int len = text.length();
+    bufferWidth = (text.length() * 6) + (MAX_IN_USE * 16);
     delete[] runningBuffer;
     runningBuffer = new int [bufferWidth];
 
@@ -51,7 +52,7 @@ void RunningText::setText(String text, int len) {
     symbolInRunningBuffer(pos, empty, MAX_IN_USE * 8);
     pos += (MAX_IN_USE * 8);
 
-    for (int i = 0; i < len; i++) {
+    for (int i = 0; i < text.length(); i++) {
         symbolInRunningBuffer(pos, letters[text[i] - 32], 5);
         pos += 5;
         runningBuffer[pos] = 0;
@@ -66,10 +67,17 @@ void RunningText::setText(String text, int len) {
     os_timer_arm(&updateTimer, timerInterval, true);
 }
 
-void RunningText::setInterval(int interval) {
+int RunningText::setInterval(int interval) {
+
+    // An interval lower than 50 causes problems
+    if (interval < 50)
+        return 1;
+
     timerInterval = interval;
     os_timer_disarm(&updateTimer);
     os_timer_arm(&updateTimer, timerInterval, true);
+
+    return 0;
 }
 
 void RunningText::stop() {

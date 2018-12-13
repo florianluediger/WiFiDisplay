@@ -39,11 +39,11 @@ void updateCurrentText(void *pArg) {
 * Parameter text: the text that should be displayed
 * Parameter len: the number of characters
 */
-void FlashingText::setText(String text, int len) {
+int FlashingText::setText(String text) {
     stop();
 
     if(text.length() < 1)
-        return;
+        return 1;
     
     wordCount = 1;
     for (unsigned int i = 0; i < text.length(); i++) {
@@ -58,23 +58,47 @@ void FlashingText::setText(String text, int len) {
     int wordIndex = 0;
     for (unsigned int i = 0; i < text.length(); i++) {
         if (text[i] == ';') {
-            flashingBuffer[wordIndex] = text.substring(lastSemiColon+1, i);
+            String singleWord = text.substring(lastSemiColon+1, i);
+
+            // The words must not exceed the maximum width of the display
+            int ledLength = singleWord.length() * 6 - 1;
+            if (ledLength > MAX_IN_USE * 8)
+                return 1;
+
+            flashingBuffer[wordIndex] = singleWord;
+
             lastSemiColon = i;
             wordIndex++;
         }
     }
-    flashingBuffer[wordIndex] = text.substring(lastSemiColon+1);
+
+    String singleWord = text.substring(lastSemiColon+1);
+
+    // The words must not exceed the maximum width of the display
+    int ledLength = singleWord.length() * 6 - 1;
+    if (ledLength > MAX_IN_USE * 8)
+        return 1;
+
+    flashingBuffer[wordIndex] = singleWord;
 
     currentText = 0;
 
     os_timer_setfn(&interruptTimer, updateCurrentText, NULL);
     os_timer_arm(&interruptTimer, displayDuration, true);
+
+    return 0;
 }
 
-void FlashingText::setInterval(int interval) {
+int FlashingText::setInterval(int interval) {
+    // An interval lower than 300 makes no sense
+    if (interval < 300)
+        return 1;
+
     displayDuration = interval;
     os_timer_disarm(&interruptTimer);
     os_timer_arm(&interruptTimer, displayDuration, true);
+
+    return 0;
 }
 
 void FlashingText::stop() {
