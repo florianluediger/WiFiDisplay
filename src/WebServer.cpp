@@ -12,18 +12,13 @@ IPAddress subnet(SUBNET);
 
 ESP8266WebServer webServer(80);
 
-void handleText() {
+void handleRunningText() {
     String text = webServer.arg("text");
-    String mode = webServer.arg("mode");
     String intervalParam = webServer.arg("interval");
     
     int interval = 0;
     if (intervalParam.length() > 0)
         interval = atoi(intervalParam.c_str());
-
-    // The default behavior is running text
-    if (mode.length() == 0)
-        mode = "running";
 
     // An empty request is not valid
     if (interval == 0 && text.length() <= 0) {
@@ -37,18 +32,27 @@ void handleText() {
         return;
     }
 
-    // Changing the interval only applies to the running text
-    if (interval > 50 && mode == "running")
+    if (interval > 50)
         RunningText::setInterval(interval);
 
     if (text.length() > 0) {
-        if (mode == "running")
-            RunningText::setText(text, text.length());
-        else if (mode == "flashing")
-            FlashingText::setText(text, text.length());
-        else
-            webServer.send(400, "text/plain", "Mode must be either running or flashing!");
+        RunningText::setText(text, text.length());
     }
+
+    webServer.send(200);
+}
+
+void handleFlashingText() {
+    String text = webServer.arg("text");
+
+    if (text.length() <= 0) {
+        webServer.send(400, "text/plain", "Your request did not contain any valid data!");
+        return;
+    }
+
+    FlashingText::setText(text, text.length());
+    
+    webServer.send(200);
 }
 
 void setupAP() {
@@ -84,7 +88,8 @@ void WebServer::setup() {
     else
         Serial.println("Unknown network mode configuration");
 
-    webServer.on("/text", handleText);
+    webServer.on("/text/running", handleRunningText);
+    webServer.on("/text/flashing", handleFlashingText);
     webServer.onNotFound([]() { webServer.send(404); });
     webServer.begin();
 
