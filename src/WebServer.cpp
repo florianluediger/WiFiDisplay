@@ -60,6 +60,7 @@ void handleRunningTextIsRunning() {
 void handleFlashingText() {
     String text = webServer.arg("text");
     String interval = webServer.arg("interval");
+    String iterations = webServer.arg("iterations");
 
     // An empty request is not valid
     if (interval.length() <= 0 && text.length() <= 0) {
@@ -76,7 +77,7 @@ void handleFlashingText() {
     }
 
     if (text.length() > 0) {
-        int success = FlashingText::setText(text);
+        int success = FlashingText::setText(text, atoi(iterations.c_str()));
         if (success != 0) {
             webServer.send(400, "text/plain", "Your string is not valid, consider splitting words into multiple sections.");
         }

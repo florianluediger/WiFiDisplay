@@ -4,9 +4,11 @@ int wordCount;
 String* flashingBuffer;
 int currentText;
 int displayDuration = 2000;
+bool flashing = false;
+int iterationsLeft = 0;
+bool stopNextTime = false;
 
 os_timer_t interruptTimer;
-bool flashing = false;
 
 /**
  * Displays the provided text in the center of the display.
@@ -36,19 +38,29 @@ void setCenteredText(String text) {
  * Changes the displayed text to the next text in the buffer.
  */
 void updateCurrentText(void *pArg) {
+    if (stopNextTime) {
+        FlashingText::stop();
+        return;
+    }
     setCenteredText(flashingBuffer[currentText]);
     currentText++;
-    if (currentText >= wordCount)
+    if (currentText >= wordCount) {
+        if (iterationsLeft == 1)
+            stopNextTime = true;
+        else if (iterationsLeft > 1)
+            iterationsLeft--;
         currentText = 0;
+    }
 }
 
 /**
  * Sets the text that should be displayed.
  *
  * Parameter text: The text that should be displayed.
+ * Parameter iterations: The number of times the text should be displayed or 0 for infinite times.
  * Returns: 0 on success, 1 when a word exceeds the maximum length of the display.
  */
-int FlashingText::setText(String text) {
+int FlashingText::setText(String text, int iterations) {
     stop();
 
     if(text.length() < 1)
@@ -59,6 +71,9 @@ int FlashingText::setText(String text) {
         if (text[i] == ';')
             wordCount++;
     }
+
+    iterationsLeft = iterations;
+    stopNextTime = false;
     
     delete[] flashingBuffer;
     flashingBuffer = new String [wordCount];
