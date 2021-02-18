@@ -5,7 +5,6 @@ int bufferWidth;
 int position;
 int timerInterval = 50;
 
-os_timer_t updateTimer;
 bool running = false;
 
 /**
@@ -25,14 +24,14 @@ void symbolInRunningBuffer(int x, int* arr, int len) {
 * Shifts the whole text one pixel to the left.
 * Stops when the whole text has been displayed.
 */
-void updatePosition(void *pArg) {
+void RunningText::updatePosition() {
     if (position < (bufferWidth - (MAX_IN_USE * 8))) {
         Matrix::setWholeBuffer(runningBuffer + position);
         Matrix::drawBuffer();
         position++;
     }
     else {
-        os_timer_disarm(&updateTimer);
+        SchedulerUtils::disableRunningText();
         running = false;
     }
 }
@@ -64,8 +63,7 @@ void RunningText::setText(String text) {
 
     position = 0;
 
-    os_timer_setfn(&updateTimer, updatePosition, NULL);
-    os_timer_arm(&updateTimer, timerInterval, true);
+    SchedulerUtils::enableRunningText();
     running = true;
 }
 
@@ -82,8 +80,7 @@ int RunningText::setInterval(int interval) {
         return 1;
 
     timerInterval = interval;
-    os_timer_disarm(&updateTimer);
-    os_timer_arm(&updateTimer, timerInterval, true);
+    SchedulerUtils::enableRunningText();
     running = true;
 
     return 0;
@@ -93,7 +90,7 @@ int RunningText::setInterval(int interval) {
  * Stops the running text and clears the display.
  */
 void RunningText::stop() {
-    os_timer_disarm(&updateTimer);
+    SchedulerUtils::disableRunningText();
     running = false;
     Matrix::clearAll();
 }

@@ -1,7 +1,7 @@
+#include "SchedulerUtils.h"
 #include "RunningText.h"
 #include "OperateMatrix.h"
 #include "WebServer.h"
-
 
 void setup() {
     Serial.begin(115200);
@@ -11,10 +11,10 @@ void setup() {
     Matrix::clearAll();
 
     WebServer::setup();
+
+    SchedulerUtils::enableWebServer();
 }
 
 void loop() {
-    WebServer::checkForRequest();
-    yield();
+    SchedulerUtils::executeScheduler();
 }
-

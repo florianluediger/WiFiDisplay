@@ -8,8 +8,6 @@ bool flashing = false;
 int iterationsLeft = 0;
 bool stopNextTime = false;
 
-os_timer_t interruptTimer;
-
 /**
  * Displays the provided text in the center of the display.
  * 
@@ -37,7 +35,7 @@ void setCenteredText(String text) {
 /**
  * Changes the displayed text to the next text in the buffer.
  */
-void updateCurrentText(void *pArg) {
+void FlashingText::updateCurrentText() {
     if (stopNextTime) {
         FlashingText::stop();
         return;
@@ -108,8 +106,7 @@ int FlashingText::setText(String text, int iterations) {
 
     currentText = 0;
 
-    os_timer_setfn(&interruptTimer, updateCurrentText, NULL);
-    os_timer_arm(&interruptTimer, displayDuration, true);
+    SchedulerUtils::enableFlashingText();
     flashing = true;
 
     return 0;
@@ -127,8 +124,7 @@ int FlashingText::setInterval(int interval) {
         return 1;
 
     displayDuration = interval;
-    os_timer_disarm(&interruptTimer);
-    os_timer_arm(&interruptTimer, displayDuration, true);
+    SchedulerUtils::enableFlashingText();
     flashing = true;
 
     return 0;
@@ -138,7 +134,7 @@ int FlashingText::setInterval(int interval) {
  * Stops the flashing text and clears the display.
  */
 void FlashingText::stop() {
-    os_timer_disarm(&interruptTimer);
+    SchedulerUtils::disableFlashingText();
     flashing = false;
     Matrix::clearAll();
 }
