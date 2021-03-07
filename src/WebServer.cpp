@@ -110,6 +110,12 @@ void handleStopAny() {
     webServer.send(200);
 }
 
+void handleSpotifyCurrent() {
+    String playing = SpotifyClient::getCurrentlyPlaying();
+    RunningText::setText(playing);
+    webServer.send(200);
+}
+
 /**
  * Starts the web server to be able to handle different requests.
  */
@@ -122,6 +128,9 @@ void WebServer::setup() {
     webServer.on("/text/flashing/isflashing", handleFlashingTextIsFlashing);
     webServer.on("/text/any/displaying", handleAnyDisplaying);
     webServer.on("/text/any/stop", handleStopAny);
+    webServer.on("/spotify/current", handleSpotifyCurrent);
+    webServer.on("/spotify/enable", SchedulerUtils::enableSpotifyMonitor);
+    webServer.on("/spotify/disable", SchedulerUtils::disableSpotifyMonitor);
     webServer.onNotFound([]() { webServer.send(404); });
     webServer.begin();
 

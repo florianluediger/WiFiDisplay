@@ -6,6 +6,7 @@ Scheduler* scheduler = new Scheduler();
 Task* webserver = new Task(0, TASK_FOREVER, &WebServer::checkForRequest, scheduler);
 Task* runningtext = new Task(50, TASK_FOREVER, &RunningText::updatePosition, scheduler);
 Task* flashingtext = new Task(500, TASK_FOREVER, &FlashingText::updateCurrentText, scheduler);
+Task* spotifymonitor = new Task(10000, TASK_FOREVER, &SpotifyMonitor::checkForNewTrack, scheduler);
 
 void SchedulerUtils::executeScheduler() {
     scheduler->execute();
@@ -29,4 +30,12 @@ void SchedulerUtils::enableFlashingText() {
 
 void SchedulerUtils::disableFlashingText() {
     flashingtext->disable();
+}
+
+void SchedulerUtils::enableSpotifyMonitor() {
+    spotifymonitor->enable();
+}
+
+void SchedulerUtils::disableSpotifyMonitor() {
+    spotifymonitor->disable();
 }

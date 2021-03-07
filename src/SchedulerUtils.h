@@ -3,6 +3,7 @@
 
 #include "RunningText.h"
 #include "WebServer.h"
+#include "SpotifyMonitor.h"
 
 namespace SchedulerUtils {
     extern void executeScheduler();
@@ -11,5 +12,7 @@ namespace SchedulerUtils {
     extern void disableRunningText();
     extern void enableFlashingText();
     extern void disableFlashingText();
+    extern void enableSpotifyMonitor();
+    extern void disableSpotifyMonitor();
 }
 #endif
