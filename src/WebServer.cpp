@@ -1,14 +1,6 @@
 #include "WebServer.h"
 #include "Configuration.h"
-#include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-
-/**
- * Network Configuration
- */
-IPAddress ip(IP);
-IPAddress gateway(GATEWAY);
-IPAddress subnet(SUBNET);
 
 ESP8266WebServer webServer(80);
 
@@ -119,47 +111,9 @@ void handleStopAny() {
 }
 
 /**
- * Sets the ESP up in AP mode and creates a WiFi network.
- */
-void setupAP() {
-    WiFi.mode(WIFI_AP);
-
-    Serial.println(WiFi.softAPConfig(ip, gateway, subnet) ? "Config ready" : "Config failed");
-
-    Serial.println(WiFi.softAP(NETWORK, PASS) ? "WiFi ready" : "WiFi failed");
-
-    Serial.println("WiFi AP address:");
-    Serial.println(WiFi.softAPIP());
-}
-
-/**
- * Sets the ESP up in station mode and connects to a WiFi network.
- */
-void setupStation() {
-    WiFi.begin(NETWORK, PASS);
-    WiFi.config(ip, gateway, subnet);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("");
-    Serial.print("Connected to ");
-    Serial.println(NETWORK);
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
-}
-
-/**
  * Starts the web server to be able to handle different requests.
  */
 void WebServer::setup() {
-    if (NETWORK_MODE == 0)
-        setupStation();
-    else if (NETWORK_MODE == 1)
-        setupAP();
-    else
-        Serial.println("Unknown network mode configuration");
-
     webServer.on("/text/running", handleRunningText);
     webServer.on("/text/running/stop", handleStopRunningText);
     webServer.on("/text/running/isrunning", handleRunningTextIsRunning);
