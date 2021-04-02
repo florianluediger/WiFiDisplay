@@ -28,6 +28,31 @@
 SpotifyAuthenticator client(CLIENT_ID, CLIENT_SECRET, ESPOTIFIER_REDIRECT_URI);
 SpotifyAuth auth;
 
+void skipAheadTo(WiFiClientSecure client, String searchString) {
+  String l;
+  int maxProcessedLines = 500;
+  do
+  {
+    l = client.readStringUntil('\n');
+    maxProcessedLines--;
+  } while (maxProcessedLines > 0 && !l.isEmpty() && l.indexOf(searchString) == -1);
+}
+
+String findSymbol(WiFiClientSecure client, String searchString) {
+  String l;
+  int index;
+  int maxProcessedLines = 500;
+  do
+  {
+    l = client.readStringUntil('\n');
+    index = l.indexOf(searchString);
+    maxProcessedLines--;
+  } while (maxProcessedLines > 0 && !l.isEmpty() && index == -1);
+
+  int endIndex = l.indexOf("\",");
+  return l.substring(index + 9, endIndex);
+}
+
 void SpotifyClient::setup()
 {
   String code = client.startConfigPortal();
@@ -36,7 +61,8 @@ void SpotifyClient::setup()
   Serial.printf("Refresh token: %s\nAccess Token: %s\n", auth.refreshToken.c_str(), auth.accessToken.c_str());
 }
 
-String SpotifyClient::getCurrentlyPlaying() {
+String SpotifyClient::getCurrentlyPlaying()
+{
   WiFiClientSecure client = WiFiClientSecure();
   client.setInsecure();
 
@@ -79,24 +105,20 @@ String SpotifyClient::getCurrentlyPlaying() {
     return "ERROR - invalid response";
   }
 
-  DynamicJsonDocument doc(10240);
+  // JSON parsing is not feasible for this request because the chip memory is not large enough for the response
 
-  // Parse JSON object
-  DeserializationError error = deserializeJson(doc, client);
-  if (error)
-  {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.f_str());
-    client.stop();
-    return "ERROR - deserializeJson failed";
-  }
+  String artist = "";
+  String title = "";
 
-  String artist = doc["item"]["artists"][0]["name"].as<char *>();
-  String track = doc["item"]["name"].as<char *>();
+  skipAheadTo(client, "item");
+  skipAheadTo(client, "artists");
+  artist = findSymbol(client, "name");
+  skipAheadTo(client, "duration_ms");
+  title = findSymbol(client, "name");
 
   client.stop();
 
-  return artist + " - " + track;
+  return artist + " - " + title;
 }
 
 uint16_t SpotifyClient::playerCommand(String method, String command)
