@@ -32,15 +32,16 @@ SpotifyAuthenticator::SpotifyAuthenticator(String clientId, String clientSecret,
 
 void SpotifyAuthenticator::getToken(SpotifyAuth *auth, String grantType, String code)
 {
-  WiFiClientSecure client;
+  WiFiClientSecure clientSecure;
   //https://accounts.spotify.com/api/token
   const char *host = "accounts.spotify.com";
   const int port = 443;
   String url = "/api/token";
-  client.setInsecure();
-  if (!client.connect(host, port))
+  clientSecure.setInsecure();
+  if (!clientSecure.connect(host, port))
   {
-    Serial.println("connection failed");
+    Serial.println("Connection failed while trying to obtain a new token");
+    clientSecure.stop();
     return;
   }
 
@@ -60,45 +61,48 @@ void SpotifyAuthenticator::getToken(SpotifyAuth *auth, String grantType, String 
                    "Content-Type: application/x-www-form-urlencoded\r\n" +
                    "Connection: close\r\n\r\n" +
                    content;
-  client.print(request);
+  clientSecure.print(request);
 
   int retryCounter = 0;
-  while (!client.available())
+  while (!clientSecure.available())
   {
     retryCounter++;
     if (retryCounter > 10)
     {
+      Serial.println("Request was cancelled because of too many retries");
+      clientSecure.stop();
       return;
     }
     delay(50);
   }
 
-  client.setNoDelay(false);
+  clientSecure.setNoDelay(false);
 
   // Skip HTTP headers
-  if (!client.find(endOfHeaders))
+  if (!clientSecure.find(endOfHeaders))
   {
     Serial.println(F("Invalid response"));
-    client.stop();
+    clientSecure.stop();
     return;
   }
 
   DynamicJsonDocument doc(768);
 
   // Parse JSON object
-  DeserializationError error = deserializeJson(doc, client);
+  DeserializationError error = deserializeJson(doc, clientSecure);
   if (error)
   {
     Serial.print(F("deserializeJson() failed: "));
     Serial.println(error.f_str());
-    client.stop();
+    clientSecure.stop();
     return;
   }
 
   auth->accessToken = doc["access_token"].as<char *>();
-  auth->refreshToken = doc["refresh_token"].as<char *>();
+  if (grantType != "refresh_token")
+    auth->refreshToken = doc["refresh_token"].as<char *>();
 
-  client.stop();
+  clientSecure.stop();
 }
 
 String SpotifyAuthenticator::startConfigPortal()

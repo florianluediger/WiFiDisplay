@@ -28,29 +28,66 @@
 SpotifyAuthenticator client(CLIENT_ID, CLIENT_SECRET, ESPOTIFIER_REDIRECT_URI);
 SpotifyAuth auth;
 
-void skipAheadTo(WiFiClientSecure client, String searchString) {
+void skipAheadTo(WiFiClientSecure clientSecure, String searchString) {
   String l;
   int maxProcessedLines = 500;
   do
   {
-    l = client.readStringUntil('\n');
+    l = clientSecure.readStringUntil('\n');
     maxProcessedLines--;
   } while (maxProcessedLines > 0 && !l.isEmpty() && l.indexOf(searchString) == -1);
 }
 
-String findSymbol(WiFiClientSecure client, String searchString) {
+String findSymbol(WiFiClientSecure clientSecure, String searchString) {
   String l;
   int index;
   int maxProcessedLines = 500;
   do
   {
-    l = client.readStringUntil('\n');
+    l = clientSecure.readStringUntil('\n');
     index = l.indexOf(searchString);
     maxProcessedLines--;
   } while (maxProcessedLines > 0 && !l.isEmpty() && index == -1);
 
   int endIndex = l.indexOf("\",");
   return l.substring(index + 9, endIndex);
+}
+
+uint16_t executeRequest(WiFiClientSecure clientSecure, String request) {
+  clientSecure.print(request);
+
+  int retryCounter = 0;
+  while (!clientSecure.available())
+  {
+    retryCounter++;
+    if (retryCounter > 10)
+    {
+      Serial.println("Request was cancelled because of too many retries");
+      return 408;
+    }
+    delay(50);
+  }
+
+  clientSecure.setNoDelay(false);
+
+  // Read HTTP Code from response
+  if (!clientSecure.find("HTTP/1.")) {
+      Serial.println("HTTP code could not be found");
+      return 500;
+  }
+
+  String line = clientSecure.readStringUntil('\r');
+
+  uint16_t httpCode = line.substring(2, line.indexOf(' ', 2)).toInt();
+
+  if (httpCode == 400) {
+    return httpCode;
+  }
+
+  // Skip HTTP headers
+  clientSecure.find(endOfHeaders);
+
+  return httpCode;
 }
 
 void SpotifyClient::setup()
@@ -63,15 +100,16 @@ void SpotifyClient::setup()
 
 String SpotifyClient::getCurrentlyPlaying()
 {
-  WiFiClientSecure client = WiFiClientSecure();
-  client.setInsecure();
+  WiFiClientSecure clientSecure = WiFiClientSecure();
+  clientSecure.setInsecure();
 
   String host = "api.spotify.com";
   const int port = 443;
   String url = "/v1/me/player/currently-playing";
-  if (!client.connect(host.c_str(), port))
+  if (!clientSecure.connect(host.c_str(), port))
   {
     Serial.println("ERROR - connection failed");
+    clientSecure.stop();
     return "ERROR - connection failed";
   }
 
@@ -80,58 +118,56 @@ String SpotifyClient::getCurrentlyPlaying()
                    "Authorization: Bearer " + auth.accessToken + "\r\n" +
                    "Content-Length: 0\r\n" +
                    "Connection: close\r\n\r\n";
-  // This will send the request to the server
-  client.print(request);
 
-  int retryCounter = 0;
-  while (!client.available())
-  {
-    retryCounter++;
-    if (retryCounter > 10)
-    {
-      Serial.println("ERROR - request timed out");
-      return "ERROR - request timed out";
+  uint16_t httpCode = executeRequest(clientSecure, request);
+
+  // If token expired, obtain refresh token and execute method again
+  if (httpCode == 401) {
+    Serial.println("Refresh Token will be acquired");
+    String oldToken = auth.accessToken;
+    clientSecure.stop();
+    client.getToken(&auth, "refresh_token", auth.refreshToken);
+    if (!auth.accessToken.equals(oldToken)) {
+      Serial.println("New refresh token successfully acquired");
+      return getCurrentlyPlaying();
+    } else {
+      Serial.println("New refresh token could not be acquired");
+      return "";
     }
-    delay(50);
   }
 
-  client.setNoDelay(false);
-
-  // Skip HTTP headers
-  if (!client.find(endOfHeaders))
-  {
-    Serial.println(F("Invalid response"));
-    client.stop();
-    return "ERROR - invalid response";
+  if (httpCode == 400) {
+    clientSecure.stop();
+    return "";
   }
 
   // JSON parsing is not feasible for this request because the chip memory is not large enough for the response
-
   String artist = "";
   String title = "";
 
-  skipAheadTo(client, "item");
-  skipAheadTo(client, "artists");
-  artist = findSymbol(client, "name");
-  skipAheadTo(client, "duration_ms");
-  title = findSymbol(client, "name");
+  skipAheadTo(clientSecure, "item");
+  skipAheadTo(clientSecure, "artists");
+  artist = findSymbol(clientSecure, "name");
+  skipAheadTo(clientSecure, "duration_ms");
+  title = findSymbol(clientSecure, "name");
 
-  client.stop();
+  clientSecure.stop();
 
   return artist + " - " + title;
 }
 
 uint16_t SpotifyClient::playerCommand(String method, String command)
 {
-  WiFiClientSecure client = WiFiClientSecure();
-  client.setInsecure();
+  WiFiClientSecure clientSecure = WiFiClientSecure();
+  clientSecure.setInsecure();
 
   String host = "api.spotify.com";
   const int port = 443;
   String url = "/v1/me/player/" + command;
-  if (!client.connect(host.c_str(), port))
+  if (!clientSecure.connect(host.c_str(), port))
   {
     Serial.println("connection failed");
+    clientSecure.stop();
     return 0;
   }
 
@@ -141,35 +177,18 @@ uint16_t SpotifyClient::playerCommand(String method, String command)
                    "Content-Length: 0\r\n" +
                    "Connection: close\r\n\r\n";
   // This will send the request to the server
-  client.print(request);
+  uint16_t httpCode = executeRequest(clientSecure, request);
 
-  int retryCounter = 0;
-  while (!client.available())
-  {
-    retryCounter++;
-    if (retryCounter > 10)
-    {
-      return 0;
-    }
-    delay(50);
-  }
-
-  int size = 0;
-  client.setNoDelay(false);
-  uint16_t httpCode = 0;
-  while (client.connected() || client.available())
-  {
-    while ((size = client.available()) > 0)
-    {
-      String line = client.readStringUntil('\r');
-      Serial.println(line);
-      if (line.startsWith("HTTP/1."))
-      {
-        httpCode = line.substring(9, line.indexOf(' ', 9)).toInt();
-        Serial.printf("HTTP Code: %d\n", httpCode);
-      }
+  // If token expired, obtain refresh token and execute method again
+  if (httpCode == 401) {
+    String oldToken = auth.accessToken;
+    clientSecure.stop();
+    client.getToken(&auth, "refresh_token", auth.refreshToken);
+    if (!auth.accessToken.equals(oldToken)) {
+      return playerCommand(method, command);
     }
   }
 
+  clientSecure.stop();
   return httpCode;
 }
